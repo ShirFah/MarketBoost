@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MarketAnalysisRouteImport } from './routes/market-analysis'
+import { Route as OpportunitiesRouteImport } from './routes/opportunities'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const MarketAnalysisRoute = MarketAnalysisRouteImport.update({
   path: '/market-analysis',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OpportunitiesRoute = OpportunitiesRouteImport.update({
+  id: '/opportunities',
+  path: '/opportunities',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/market-analysis': typeof MarketAnalysisRoute
+  '/opportunities': typeof OpportunitiesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/market-analysis': typeof MarketAnalysisRoute
+  '/opportunities': typeof OpportunitiesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/market-analysis': typeof MarketAnalysisRoute
+  '/opportunities': typeof OpportunitiesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/market-analysis'
+  fullPaths: '/' | '/market-analysis' | '/opportunities'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/market-analysis'
-  id: '__root__' | '/' | '/market-analysis'
+  to: '/' | '/market-analysis' | '/opportunities'
+  id: '__root__' | '/' | '/market-analysis' | '/opportunities'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   MarketAnalysisRoute: typeof MarketAnalysisRoute
+  OpportunitiesRoute: typeof OpportunitiesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketAnalysisRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/opportunities': {
+      id: '/opportunities'
+      path: '/opportunities'
+      fullPath: '/opportunities'
+      preLoaderRoute: typeof OpportunitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   MarketAnalysisRoute: MarketAnalysisRoute,
+  OpportunitiesRoute: OpportunitiesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
