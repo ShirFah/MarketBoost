@@ -9,109 +9,112 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as MarketAnalysisRouteImport } from './routes/market-analysis'
-import { Route as MarketingIdeasRouteImport } from './routes/marketing-ideas'
-import { Route as OpportunitiesRouteImport } from './routes/opportunities'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedMarketAnalysisRouteImport } from './routes/_authenticated/market-analysis'
+import { Route as AuthenticatedMarketingIdeasRouteImport } from './routes/_authenticated/marketing-ideas'
+import { Route as AuthenticatedOpportunitiesRouteImport } from './routes/_authenticated/opportunities'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+  id: '/_authenticated/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MarketAnalysisRoute = MarketAnalysisRouteImport.update({
-  id: '/market-analysis',
-  path: '/market-analysis',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketingIdeasRoute = MarketingIdeasRouteImport.update({
-  id: '/marketing-ideas',
-  path: '/marketing-ideas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OpportunitiesRoute = OpportunitiesRouteImport.update({
-  id: '/opportunities',
-  path: '/opportunities',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const AuthenticatedMarketAnalysisRoute =
+  AuthenticatedMarketAnalysisRouteImport.update({
+    id: '/_authenticated/market-analysis',
+    path: '/market-analysis',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedMarketingIdeasRoute =
+  AuthenticatedMarketingIdeasRouteImport.update({
+    id: '/_authenticated/marketing-ideas',
+    path: '/marketing-ideas',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedOpportunitiesRoute =
+  AuthenticatedOpportunitiesRouteImport.update({
+    id: '/_authenticated/opportunities',
+    path: '/opportunities',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/market-analysis': typeof MarketAnalysisRoute
-  '/marketing-ideas': typeof MarketingIdeasRoute
-  '/opportunities': typeof OpportunitiesRoute
+  '/market-analysis': typeof AuthenticatedMarketAnalysisRoute
+  '/marketing-ideas': typeof AuthenticatedMarketingIdeasRoute
+  '/opportunities': typeof AuthenticatedOpportunitiesRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/market-analysis': typeof MarketAnalysisRoute
-  '/marketing-ideas': typeof MarketingIdeasRoute
-  '/opportunities': typeof OpportunitiesRoute
+  '/market-analysis': typeof AuthenticatedMarketAnalysisRoute
+  '/marketing-ideas': typeof AuthenticatedMarketingIdeasRoute
+  '/opportunities': typeof AuthenticatedOpportunitiesRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/market-analysis': typeof MarketAnalysisRoute
-  '/marketing-ideas': typeof MarketingIdeasRoute
-  '/opportunities': typeof OpportunitiesRoute
+  '/_authenticated/market-analysis': typeof AuthenticatedMarketAnalysisRoute
+  '/_authenticated/marketing-ideas': typeof AuthenticatedMarketingIdeasRoute
+  '/_authenticated/opportunities': typeof AuthenticatedOpportunitiesRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/market-analysis' | '/marketing-ideas' | '/opportunities'
+  fullPaths: '/market-analysis' | '/marketing-ideas' | '/opportunities' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/market-analysis' | '/marketing-ideas' | '/opportunities'
+  to: '/market-analysis' | '/marketing-ideas' | '/opportunities' | '/'
   id:
     | '__root__'
-    | '/'
-    | '/market-analysis'
-    | '/marketing-ideas'
-    | '/opportunities'
+    | '/_authenticated/market-analysis'
+    | '/_authenticated/marketing-ideas'
+    | '/_authenticated/opportunities'
+    | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  MarketAnalysisRoute: typeof MarketAnalysisRoute
-  MarketingIdeasRoute: typeof MarketingIdeasRoute
-  OpportunitiesRoute: typeof OpportunitiesRoute
+  AuthenticatedMarketAnalysisRoute: typeof AuthenticatedMarketAnalysisRoute
+  AuthenticatedMarketingIdeasRoute: typeof AuthenticatedMarketingIdeasRoute
+  AuthenticatedOpportunitiesRoute: typeof AuthenticatedOpportunitiesRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/market-analysis': {
-      id: '/market-analysis'
+    '/_authenticated/market-analysis': {
+      id: '/_authenticated/market-analysis'
       path: '/market-analysis'
       fullPath: '/market-analysis'
-      preLoaderRoute: typeof MarketAnalysisRouteImport
+      preLoaderRoute: typeof AuthenticatedMarketAnalysisRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/marketing-ideas': {
-      id: '/marketing-ideas'
+    '/_authenticated/marketing-ideas': {
+      id: '/_authenticated/marketing-ideas'
       path: '/marketing-ideas'
       fullPath: '/marketing-ideas'
-      preLoaderRoute: typeof MarketingIdeasRouteImport
+      preLoaderRoute: typeof AuthenticatedMarketingIdeasRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/opportunities': {
-      id: '/opportunities'
+    '/_authenticated/opportunities': {
+      id: '/_authenticated/opportunities'
       path: '/opportunities'
       fullPath: '/opportunities'
-      preLoaderRoute: typeof OpportunitiesRouteImport
+      preLoaderRoute: typeof AuthenticatedOpportunitiesRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  MarketAnalysisRoute: MarketAnalysisRoute,
-  MarketingIdeasRoute: MarketingIdeasRoute,
-  OpportunitiesRoute: OpportunitiesRoute,
+  AuthenticatedMarketAnalysisRoute: AuthenticatedMarketAnalysisRoute,
+  AuthenticatedMarketingIdeasRoute: AuthenticatedMarketingIdeasRoute,
+  AuthenticatedOpportunitiesRoute: AuthenticatedOpportunitiesRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
