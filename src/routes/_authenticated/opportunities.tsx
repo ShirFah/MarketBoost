@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { generateOpportunities } from "@/lib/ai.functions";
-import { useBusinessProfile, useOpportunities } from "@/lib/workspace-store";
+import { useBusinessProfile, useMarketAnalysis, useOpportunities } from "@/lib/workspace-store";
 
 export const Route = createFileRoute("/_authenticated/opportunities")({
   head: () => ({
@@ -45,6 +45,7 @@ const PRIORITY_LABEL = {
 
 function OpportunitiesPage() {
   const { profile, isComplete } = useBusinessProfile();
+  const { analysis } = useMarketAnalysis();
   const { report, saveReport, businessId } = useOpportunities();
   const run = useServerFn(generateOpportunities);
   const [loading, setLoading] = useState(false);
