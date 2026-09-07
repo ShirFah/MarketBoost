@@ -73,7 +73,7 @@ export function AppShell({
 
       <main className="surface-mesh flex-1 px-5 py-8 md:px-12 md:py-14">
         <div className="mx-auto max-w-5xl">
-          <header className="mb-8 md:mb-10">
+          <header className="rise mb-8 md:mb-10">
             {eyebrow ? (
               <span className="border-border/70 bg-card/70 text-muted-foreground mb-4 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-medium">
                 <span
@@ -92,9 +92,12 @@ export function AppShell({
               </p>
             ) : null}
           </header>
-          {children}
+          <div className="rise" style={{ animationDelay: "90ms" }}>
+            {children}
+          </div>
         </div>
       </main>
     </div>
   );
 }
+
