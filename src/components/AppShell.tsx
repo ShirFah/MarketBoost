@@ -2,11 +2,12 @@ import { Link } from "@tanstack/react-router";
 import { Building2, LineChart, Sparkles, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-const NAV: { to: string; label: string; icon: LucideIcon }[] = [
-  { to: "/", label: "פרופיל העסק", icon: Building2 },
-  { to: "/market-analysis", label: "ניתוח שוק", icon: LineChart },
-  { to: "/opportunities", label: "הזדמנויות", icon: Sparkles },
+const NAV: { to: string; label: string; icon: LucideIcon; step: string }[] = [
+  { to: "/", label: "פרופיל העסק", icon: Building2, step: "1" },
+  { to: "/market-analysis", label: "ניתוח שוק", icon: LineChart, step: "2" },
+  { to: "/opportunities", label: "הזדמנויות", icon: Sparkles, step: "3" },
 ];
+
 
 export function AppShell({
   title,
@@ -44,12 +45,12 @@ export function AppShell({
         </Link>
 
         <nav className="mt-6 flex gap-1 overflow-x-auto md:mt-10 md:flex-col md:overflow-visible">
-          {NAV.map(({ to, label, icon: Icon }) => (
+          {NAV.map(({ to, label, icon: Icon, step }) => (
             <Link
               key={to}
               to={to}
               activeOptions={{ exact: to === "/" }}
-              className="text-sidebar-foreground/65 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm whitespace-nowrap transition-all"
+              className="text-sidebar-foreground/65 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm whitespace-nowrap transition-all hover:-translate-y-0.5"
               activeProps={{
                 className:
                   "bg-sidebar-accent text-sidebar-accent-foreground font-semibold shadow-soft",
@@ -57,9 +58,13 @@ export function AppShell({
             >
               <Icon className="size-4" />
               {label}
+              <span className="border-sidebar-border/80 text-sidebar-foreground/50 ms-auto hidden size-5 place-items-center rounded-full border text-[10px] md:grid">
+                {step}
+              </span>
             </Link>
           ))}
         </nav>
+
 
         <p className="text-sidebar-foreground/45 mt-8 hidden text-[11px] leading-relaxed md:block">
           כל ניתוח נבנה מהפרופיל שלך יחד עם מחקר אינטרנט עדכני, עם קישור למקורות.
@@ -68,7 +73,7 @@ export function AppShell({
 
       <main className="surface-mesh flex-1 px-5 py-8 md:px-12 md:py-14">
         <div className="mx-auto max-w-5xl">
-          <header className="mb-8 md:mb-10">
+          <header className="rise mb-8 md:mb-10">
             {eyebrow ? (
               <span className="border-border/70 bg-card/70 text-muted-foreground mb-4 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-medium">
                 <span
@@ -87,9 +92,12 @@ export function AppShell({
               </p>
             ) : null}
           </header>
-          {children}
+          <div className="rise" style={{ animationDelay: "90ms" }}>
+            {children}
+          </div>
         </div>
       </main>
     </div>
   );
 }
+
