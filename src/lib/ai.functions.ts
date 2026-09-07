@@ -6,6 +6,7 @@ import {
   type MarketAnalysis,
   type OpportunityReport,
 } from "./marketing-types";
+import type { Json } from "@/integrations/supabase/types";
 import { rowToProfile } from "./workspace.functions";
 
 const businessInput = (input: unknown) => {
@@ -127,8 +128,8 @@ Return JSON with exactly this shape:
     // Every generation is stored as a new row, so report history stays possible.
     const { error } = await context.supabase.from("market_analyses").insert({
       business_id: data.businessId,
-      content: report as unknown as Record<string, unknown>,
-      sources: report.sources as unknown as Record<string, unknown>[],
+      content: report as unknown as Json,
+      sources: report.sources as unknown as Json,
       research_used: liveDataUsed,
     });
     if (error) throw new Error(error.message);
@@ -196,11 +197,8 @@ Return between 5 and 8 opportunities as JSON with exactly this shape:
     const { error } = await context.supabase.from("opportunities_reports").insert({
       business_id: data.businessId,
       market_analysis_id: analysis?.id ?? null,
-      content: report as unknown as Record<string, unknown>,
-      sources: report.opportunities.flatMap((o) => o.sources) as unknown as Record<
-        string,
-        unknown
-      >[],
+      content: report as unknown as Json,
+      sources: report.opportunities.flatMap((o) => o.sources) as unknown as Json,
       research_used: liveDataUsed,
     });
     if (error) throw new Error(error.message);
@@ -274,8 +272,8 @@ Return 6-9 ideas as JSON with exactly this shape:
     const { error } = await context.supabase.from("marketing_ideas_reports").insert({
       business_id: data.businessId,
       market_analysis_id: analysis?.id ?? null,
-      content: report as unknown as Record<string, unknown>,
-      sources: report.ideas.flatMap((i) => i.sources) as unknown as Record<string, unknown>[],
+      content: report as unknown as Json,
+      sources: report.ideas.flatMap((i) => i.sources) as unknown as Json,
       research_used: liveDataUsed,
     });
     if (error) throw new Error(error.message);
