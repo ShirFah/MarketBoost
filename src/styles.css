@@ -121,23 +121,24 @@
 @utility surface-mesh {
   background-image:
     radial-gradient(
-      70rem 32rem at 88% -10%,
-      color-mix(in oklab, var(--primary) 16%, transparent),
+      68rem 30rem at 90% -12%,
+      color-mix(in oklab, var(--primary) 9%, transparent),
       transparent 70%
     ),
     radial-gradient(
-      52rem 28rem at 4% 8%,
-      color-mix(in oklab, var(--primary-glow) 18%, transparent),
+      50rem 26rem at 2% 6%,
+      color-mix(in oklab, var(--primary-glow) 11%, transparent),
       transparent 68%
     );
 }
 
 @utility glass-card {
-  background: color-mix(in oklab, var(--card) 82%, transparent);
-  backdrop-filter: blur(14px);
-  border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+  background: color-mix(in oklab, var(--card) 74%, transparent);
+  backdrop-filter: blur(16px);
+  border: 1px solid color-mix(in oklab, var(--border) 65%, transparent);
   box-shadow: var(--shadow-soft);
 }
+
 
 .dark {
   --background: oklch(0.16 0.016 55);
