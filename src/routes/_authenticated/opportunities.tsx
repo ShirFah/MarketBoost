@@ -73,7 +73,7 @@ function OpportunitiesPage() {
               השלימו את פרופיל העסק ונחפש עבורכם פתחים בשוק.
             </p>
             <Button asChild className="mt-5 rounded-xl">
-              <Link to="/">מעבר לפרופיל העסק</Link>
+              <Link to="/business">מעבר לפרופיל העסק</Link>
             </Button>
           </CardContent>
         </Card>
@@ -83,7 +83,7 @@ function OpportunitiesPage() {
 
   return (
     <AppShell
-      eyebrow="שלב 3 · מה עושים עכשיו"
+      eyebrow="מה עושים עכשיו"
       title="הזדמנויות"
       subtitle={`מהלכים ממוקדים ועדכניים עבור ${profile.businessName}, כל אחד עם האות מהשוק שמאחוריו.`}
     >

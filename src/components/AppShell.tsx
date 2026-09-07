@@ -1,15 +1,26 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Building2, Lightbulb, LineChart, LogOut, Sparkles, type LucideIcon } from "lucide-react";
+import {
+  Building2,
+  CalendarDays,
+  Home,
+  Lightbulb,
+  LineChart,
+  LogOut,
+  Target,
+  type LucideIcon,
+} from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
-const NAV: { to: string; label: string; icon: LucideIcon; step: string }[] = [
-  { to: "/", label: "פרופיל העסק", icon: Building2, step: "1" },
-  { to: "/market-analysis", label: "ניתוח שוק", icon: LineChart, step: "2" },
-  { to: "/opportunities", label: "הזדמנויות", icon: Sparkles, step: "3" },
-  { to: "/marketing-ideas", label: "רעיונות שיווק", icon: Lightbulb, step: "4" },
+const NAV: { to: string; label: string; icon: LucideIcon }[] = [
+  { to: "/", label: "בית", icon: Home },
+  { to: "/plan", label: "תוכנית שיווק", icon: CalendarDays },
+  { to: "/opportunities", label: "הזדמנויות", icon: Target },
+  { to: "/marketing-ideas", label: "תוכן", icon: Lightbulb },
+  { to: "/market-analysis", label: "מחקר שוק", icon: LineChart },
+  { to: "/business", label: "העסק שלי", icon: Building2 },
 ];
 
 
@@ -97,12 +108,12 @@ export function AppShell({
         </Link>
 
         <nav className="mt-6 flex gap-1 overflow-x-auto md:mt-10 md:flex-col md:overflow-visible">
-          {NAV.map(({ to, label, icon: Icon, step }) => (
+          {NAV.map(({ to, label, icon: Icon }) => (
             <Link
               key={to}
               to={to}
               activeOptions={{ exact: to === "/" }}
-              className="text-sidebar-foreground/65 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm whitespace-nowrap transition-all hover:-translate-y-0.5"
+              className="text-sidebar-foreground/65 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm whitespace-nowrap transition-all"
               activeProps={{
                 className:
                   "bg-sidebar-accent text-sidebar-accent-foreground font-semibold shadow-soft",
@@ -110,9 +121,6 @@ export function AppShell({
             >
               <Icon className="size-4" />
               {label}
-              <span className="border-sidebar-border/80 text-sidebar-foreground/50 ms-auto hidden size-5 place-items-center rounded-full border text-[10px] md:grid">
-                {step}
-              </span>
             </Link>
           ))}
         </nav>

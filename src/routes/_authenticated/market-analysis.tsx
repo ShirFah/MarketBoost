@@ -84,7 +84,7 @@ function MarketAnalysisPage() {
               השלימו את פרופיל העסק ונוכל לחקור עבורכם את השוק.
             </p>
             <Button asChild className="mt-5 rounded-xl">
-              <Link to="/">מעבר לפרופיל העסק</Link>
+              <Link to="/business">מעבר לפרופיל העסק</Link>
             </Button>
           </CardContent>
         </Card>
@@ -94,7 +94,7 @@ function MarketAnalysisPage() {
 
   return (
     <AppShell
-      eyebrow="שלב 2 · תמונת מצב מהשוק"
+      eyebrow="תמונת מצב מהשוק"
       title="ניתוח שוק"
       subtitle={`תמונה עדכנית של השוק סביב ${profile.businessName}, שנחקרה ברשת ופורשה עבורכם.`}
     >
