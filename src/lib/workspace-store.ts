@@ -3,6 +3,7 @@ import {
   emptyProfile,
   type BusinessProfile,
   type MarketAnalysis,
+  type IdeasReport,
   type OpportunityReport,
 } from "./marketing-types";
 
@@ -10,6 +11,7 @@ const KEYS = {
   profile: "mb.profile",
   analysis: "mb.marketAnalysis",
   opportunities: "mb.opportunities",
+  ideas: "mb.ideas",
 } as const;
 
 function read<T>(key: string, fallback: T): T {
@@ -68,4 +70,9 @@ export function useOpportunities() {
     null,
   );
   return { report: value, saveReport: save, ready };
+}
+
+export function useMarketingIdeas() {
+  const { value, save, ready } = useStored<IdeasReport | null>(KEYS.ideas, null);
+  return { ideas: value, saveIdeas: save, ready };
 }
