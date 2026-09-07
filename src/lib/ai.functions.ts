@@ -30,10 +30,14 @@ function profileBlock(p: z.infer<typeof businessProfileSchema>) {
 const SHARED_RULES = `You are a senior marketing strategist for small businesses.
 Use web research to gather CURRENT, credible information before answering. Prefer recent sources.
 Rules:
+- Write EVERY value of the JSON output in Hebrew (natural, fluent business Hebrew), except URLs, brand names that are normally written in Latin letters, and dates.
+- The "priority" field must stay exactly one of: High, Medium, Low. The "category" field must be written in Hebrew.
+- You may research in any language, and prefer Hebrew and Israeli sources when the business is Israeli.
 - Be specific to this exact business, its location and its audience. No generic marketing advice.
 - Separate facts found through web research from your own interpretation.
-- Every source you list must be a real page you actually found, with its publisher name, page title, full URL and publication date when known.
+- Every source you list must be a real page you actually found, with its publisher name, page title, full URL and publication date when known. Source names and titles may stay in their original language.
 - Reply with ONE valid JSON object only. No markdown fences, no commentary.`;
+
 
 export const generateMarketAnalysis = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => marketInput.parse(input))
