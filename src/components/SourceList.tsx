@@ -18,9 +18,12 @@ export function SourceList({ sources, compact }: { sources: Source[]; compact?: 
             {source.title || source.url}
             <ExternalLink className="mt-0.5 size-3.5 shrink-0" />
           </a>
-          <p className="text-muted-foreground text-xs" dir="ltr">
-            {[source.name, source.date].filter(Boolean).join(" · ")}
+          <p className="text-muted-foreground text-xs">
+            <span dir="ltr" className="inline-block">
+              {[source.name, source.date].filter(Boolean).join(" · ")}
+            </span>
           </p>
+
         </li>
       ))}
     </ul>
