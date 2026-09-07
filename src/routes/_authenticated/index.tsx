@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { businessProfileSchema, type BusinessProfile } from "@/lib/marketing-types";
 import { useBusinessProfile } from "@/lib/workspace-store";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
       { title: "פרופיל העסק — Market Boost" },

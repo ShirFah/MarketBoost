@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { generateOpportunities } from "@/lib/ai.functions";
 import { useBusinessProfile, useMarketAnalysis, useOpportunities } from "@/lib/workspace-store";
 
-export const Route = createFileRoute("/opportunities")({
+export const Route = createFileRoute("/_authenticated/opportunities")({
   head: () => ({
     meta: [
       { title: "הזדמנויות שיווק — Market Boost" },

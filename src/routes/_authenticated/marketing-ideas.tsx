@@ -21,7 +21,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { generateMarketingIdeas } from "@/lib/ai.functions";
 import { useBusinessProfile, useMarketAnalysis, useMarketingIdeas } from "@/lib/workspace-store";
 
-export const Route = createFileRoute("/marketing-ideas")({
+export const Route = createFileRoute("/_authenticated/marketing-ideas")({
   head: () => ({
     meta: [
       { title: "רעיונות שיווק — Market Boost" },

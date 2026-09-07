@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { generateMarketAnalysis } from "@/lib/ai.functions";
 import { useBusinessProfile, useMarketAnalysis } from "@/lib/workspace-store";
 
-export const Route = createFileRoute("/market-analysis")({
+export const Route = createFileRoute("/_authenticated/market-analysis")({
   head: () => ({
     meta: [
       { title: "ניתוח שוק — Market Boost" },
