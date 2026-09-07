@@ -131,3 +131,62 @@ Return between 5 and 8 opportunities as JSON with exactly this shape:
       generatedAt: new Date().toISOString(),
     };
   });
+
+const ideasInput = z.object({
+  profile: businessProfileSchema,
+  marketAnalysis: z.string().optional().default(""),
+});
+
+export const generateMarketingIdeas = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => ideasInput.parse(input))
+  .handler(async ({ data }): Promise<IdeasReport> => {
+    const { runResearch, parseJsonObject } = await import("./ai-gateway.server");
+
+    const prompt = `Create ready-to-use marketing ideas for this business: social content, promotions and trends that are running online RIGHT NOW.
+
+BUSINESS PROFILE
+${profileBlock(data.profile)}
+
+${data.marketAnalysis ? `EXISTING MARKET ANALYSIS (from this app)\n${data.marketAnalysis.slice(0, 5000)}` : "No market analysis has been generated yet."}
+
+Research what is currently trending online (social platforms, viral formats, seasonal moments, local Israeli trends), and what similar businesses are posting and offering right now.
+
+Return 6-9 ideas as JSON with exactly this shape:
+{
+  "ideas": [{
+    "title": "",
+    "channel": "one Hebrew label out of: אינסטגרם | פייסבוק | טיקטוק | וואטסאפ | ניוזלטר | גוגל",
+    "format": "e.g. ריל, קרוסלה, סטורי, פוסט טקסט, מבצע",
+    "content": "the actual ready-to-publish caption or post text in Hebrew, including line breaks and emojis where natural",
+    "hashtags": ["#..."],
+    "callToAction": "",
+    "whyNow": "the current signal or trend that makes this timely",
+    "priority": "High | Medium | Low",
+    "sources": [{"name": "", "title": "", "url": "", "date": ""}]
+  }],
+  "trendingNow": [{"trend": "what is trending online now", "howToUse": "how this business can use it"}],
+  "promotions": [{"title": "", "details": "concrete offer, wording and timing", "whyItWorks": ""}],
+  "webFindings": ["factual statements found through web research"],
+  "aiInterpretation": ["your own reasoning and recommendations"]
+}`;
+
+    const { text, liveDataUsed } = await runResearch(SHARED_RULES, prompt);
+    const parsed = parseJsonObject<Omit<IdeasReport, "liveDataUsed" | "generatedAt">>(text);
+
+    return {
+      ideas: (parsed.ideas ?? []).map((idea) => ({
+        ...idea,
+        hashtags: idea.hashtags ?? [],
+        priority: (["High", "Medium", "Low"] as const).includes(idea.priority)
+          ? idea.priority
+          : "Medium",
+        sources: (idea.sources ?? []).filter((s) => s?.url),
+      })),
+      trendingNow: parsed.trendingNow ?? [],
+      promotions: parsed.promotions ?? [],
+      webFindings: parsed.webFindings ?? [],
+      aiInterpretation: parsed.aiInterpretation ?? [],
+      liveDataUsed,
+      generatedAt: new Date().toISOString(),
+    };
+  });
