@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_usage_events: {
+        Row: {
+          business_id: string | null
+          completed_at: string | null
+          created_at: string
+          feature: string
+          id: string
+          meta: Json
+          model: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          business_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          feature: string
+          id?: string
+          meta?: Json
+          model?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          business_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          feature?: string
+          id?: string
+          meta?: Json
+          model?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       businesses: {
         Row: {
           created_at: string
@@ -216,6 +252,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_ai_generation: {
+        Args: { _business_id?: string; _feature: string }
+        Returns: {
+          allowed: boolean
+          daily_used: number
+          event_id: string
+          hourly_used: number
+          reason: string
+        }[]
+      }
+      finish_ai_generation: {
+        Args: { _event_id: string; _meta?: Json; _success: boolean }
+        Returns: undefined
+      }
       owns_business: { Args: { _business_id: string }; Returns: boolean }
     }
     Enums: {
