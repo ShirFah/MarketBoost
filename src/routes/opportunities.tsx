@@ -3,7 +3,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { AlertTriangle, Globe, Loader2, RefreshCw, Sparkles, Target } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { ReportSkeleton } from "@/components/ReportSkeleton";
 import { SourceList } from "@/components/SourceList";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
