@@ -120,10 +120,11 @@ function MarketAnalysisPage() {
       </div>
 
       {loading ? (
-        <p className="text-muted-foreground mb-6 text-sm">
-          זה לוקח בדרך כלל עד דקה, בזמן שאנחנו קוראים מקורות עדכניים.
-        </p>
+        <div className="mb-6">
+          <ReportSkeleton cards={3} />
+        </div>
       ) : null}
+
 
       {error ? (
         <Card className="border-destructive/40 glass-card mb-6">
