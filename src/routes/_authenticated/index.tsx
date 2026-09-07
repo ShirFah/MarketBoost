@@ -72,7 +72,9 @@ function ProfilePage() {
     if (errors[key]) setErrors((prev) => ({ ...prev, [key]: "" }));
   };
 
-  const onSave = () => {
+  const [saving, setSaving] = useState(false);
+
+  const onSave = async () => {
     const result = businessProfileSchema.safeParse(value);
     if (!result.success) {
       const next: Record<string, string> = {};
@@ -85,9 +87,16 @@ function ProfilePage() {
       return;
     }
     setErrors({});
-    saveProfile(result.data);
-    setDraft(null);
-    toast.success("פרופיל העסק נשמר. אפשר להמשיך לניתוח השוק.");
+    setSaving(true);
+    try {
+      await saveProfile(result.data);
+      setDraft(null);
+      toast.success("פרופיל העסק נשמר. אפשר להמשיך לניתוח השוק.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "לא הצלחנו לשמור. נסו שוב.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -153,8 +162,8 @@ function ProfilePage() {
       </Card>
 
       <div className="glass-card sticky bottom-4 z-10 mt-6 flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3">
-        <Button onClick={onSave} disabled={!ready} size="lg" className="rounded-xl">
-          שמירת הפרופיל
+        <Button onClick={onSave} disabled={!ready || saving} size="lg" className="rounded-xl">
+          {saving ? "שומרים…" : "שמירת הפרופיל"}
         </Button>
         <span className="text-muted-foreground text-xs">
           {draft ? "יש לכם שינויים שלא נשמרו." : isComplete ? "הפרופיל שמור ומוכן." : "אפשר להשלים בהדרגה — נשמור לכם את מה שכבר מולא."}
