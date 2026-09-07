@@ -33,10 +33,12 @@ function AccountArea() {
   }, []);
 
   const signOut = async () => {
+    // Navigate away first: protected pages must unmount before the session is
+    // cleared, otherwise their queries refetch without a token and 401.
     await queryClient.cancelQueries();
+    await navigate({ to: "/auth", replace: true });
     queryClient.clear();
     await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
   };
 
   if (!email) return null;
