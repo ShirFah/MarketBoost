@@ -1,19 +1,58 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
-  businessProfileSchema,
+  type BusinessProfile,
   type IdeasReport,
   type MarketAnalysis,
   type OpportunityReport,
 } from "./marketing-types";
-import { z } from "zod";
+import { rowToProfile } from "./workspace.functions";
 
-const marketInput = z.object({ profile: businessProfileSchema });
-const opportunityInput = z.object({
-  profile: businessProfileSchema,
-  marketAnalysis: z.string().optional().default(""),
-});
+const businessInput = (input: unknown) => {
+  const id = (input as { businessId?: unknown }).businessId;
+  if (typeof id !== "string" || !id) throw new Error("A business is required.");
+  return { businessId: id };
+};
 
-function profileBlock(p: z.infer<typeof businessProfileSchema>) {
+const BUSINESS_COLUMNS =
+  "id, name, website, industry, description, products_services, target_audience, location, marketing_goals, current_channels, known_competitors";
+
+/**
+ * Loads a business the caller actually owns. RLS already scopes the query to
+ * the signed-in user, so a business_id coming from the browser can never reach
+ * another user's data.
+ */
+async function loadOwnedBusiness(
+  supabase: { from: (t: string) => any },
+  businessId: string,
+): Promise<BusinessProfile> {
+  const { data, error } = await supabase
+    .from("businesses")
+    .select(BUSINESS_COLUMNS)
+    .eq("id", businessId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("Business not found.");
+  return rowToProfile(data);
+}
+
+/** Latest stored market analysis for this business, used as extra prompt context. */
+async function loadLatestAnalysis(
+  supabase: { from: (t: string) => any },
+  businessId: string,
+): Promise<{ id: string; content: MarketAnalysis } | null> {
+  const { data, error } = await supabase
+    .from("market_analyses")
+    .select("id, content")
+    .eq("business_id", businessId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return data ? { id: data.id, content: data.content as MarketAnalysis } : null;
+}
+
+function profileBlock(p: BusinessProfile) {
   return [
     `Business name: ${p.businessName}`,
     `Website: ${p.website || "not provided"}`,
@@ -39,16 +78,17 @@ Rules:
 - Every source you list must be a real page you actually found, with its publisher name, page title, full URL and publication date when known. Source names and titles may stay in their original language.
 - Reply with ONE valid JSON object only. No markdown fences, no commentary.`;
 
-
 export const generateMarketAnalysis = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => marketInput.parse(input))
-  .handler(async ({ data }): Promise<MarketAnalysis> => {
+  .middleware([requireSupabaseAuth])
+  .inputValidator(businessInput)
+  .handler(async ({ data, context }): Promise<MarketAnalysis> => {
     const { runResearch, parseJsonObject } = await import("./ai-gateway.server");
+    const profile = await loadOwnedBusiness(context.supabase, data.businessId);
 
     const prompt = `Research the current market for this business and produce a market analysis.
 
 BUSINESS PROFILE
-${profileBlock(data.profile)}
+${profileBlock(profile)}
 
 Research relevant competitors, current market trends, customer behaviour, industry developments, competitor positioning, publicly available pricing or offers, and important recent market changes.
 
@@ -69,7 +109,7 @@ Return JSON with exactly this shape:
     const { text, liveDataUsed } = await runResearch(SHARED_RULES, prompt);
     const parsed = parseJsonObject<Omit<MarketAnalysis, "liveDataUsed" | "generatedAt">>(text);
 
-    return {
+    const report: MarketAnalysis = {
       marketOverview: parsed.marketOverview ?? "",
       competitors: parsed.competitors ?? [],
       trends: parsed.trends ?? [],
@@ -83,19 +123,42 @@ Return JSON with exactly this shape:
       liveDataUsed,
       generatedAt: new Date().toISOString(),
     };
+
+    // Every generation is stored as a new row, so report history stays possible.
+    const { error } = await context.supabase.from("market_analyses").insert({
+      business_id: data.businessId,
+      content: report as unknown as Record<string, unknown>,
+      sources: report.sources as unknown as Record<string, unknown>[],
+      research_used: liveDataUsed,
+    });
+    if (error) throw new Error(error.message);
+
+    return report;
   });
 
 export const generateOpportunities = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => opportunityInput.parse(input))
-  .handler(async ({ data }): Promise<OpportunityReport> => {
+  .middleware([requireSupabaseAuth])
+  .inputValidator(businessInput)
+  .handler(async ({ data, context }): Promise<OpportunityReport> => {
     const { runResearch, parseJsonObject } = await import("./ai-gateway.server");
+    const profile = await loadOwnedBusiness(context.supabase, data.businessId);
+    const analysis = await loadLatestAnalysis(context.supabase, data.businessId);
+    const analysisContext = analysis
+      ? JSON.stringify({
+          marketOverview: analysis.content.marketOverview,
+          competitors: analysis.content.competitors,
+          trends: analysis.content.trends,
+          customerInsights: analysis.content.customerInsights,
+          risks: analysis.content.risks,
+        }).slice(0, 6000)
+      : "";
 
     const prompt = `Find current, concrete marketing opportunities for this business.
 
 BUSINESS PROFILE
-${profileBlock(data.profile)}
+${profileBlock(profile)}
 
-${data.marketAnalysis ? `EXISTING MARKET ANALYSIS (from this app)\n${data.marketAnalysis.slice(0, 6000)}` : "No market analysis has been generated yet."}
+${analysisContext ? `EXISTING MARKET ANALYSIS (from this app)\n${analysisContext}` : "No market analysis has been generated yet."}
 
 Research emerging trends, competitor weaknesses or gaps, underserved customer needs, content opportunities, new marketing channels or formats, market gaps, and timely or seasonal opportunities.
 
@@ -118,12 +181,10 @@ Return between 5 and 8 opportunities as JSON with exactly this shape:
     const { text, liveDataUsed } = await runResearch(SHARED_RULES, prompt);
     const parsed = parseJsonObject<Omit<OpportunityReport, "liveDataUsed" | "generatedAt">>(text);
 
-    return {
+    const report: OpportunityReport = {
       opportunities: (parsed.opportunities ?? []).map((o) => ({
         ...o,
-        priority: (["High", "Medium", "Low"] as const).includes(o.priority)
-          ? o.priority
-          : "Medium",
+        priority: (["High", "Medium", "Low"] as const).includes(o.priority) ? o.priority : "Medium",
         sources: (o.sources ?? []).filter((s) => s?.url),
       })),
       webFindings: parsed.webFindings ?? [],
@@ -131,24 +192,43 @@ Return between 5 and 8 opportunities as JSON with exactly this shape:
       liveDataUsed,
       generatedAt: new Date().toISOString(),
     };
+
+    const { error } = await context.supabase.from("opportunities_reports").insert({
+      business_id: data.businessId,
+      market_analysis_id: analysis?.id ?? null,
+      content: report as unknown as Record<string, unknown>,
+      sources: report.opportunities.flatMap((o) => o.sources) as unknown as Record<
+        string,
+        unknown
+      >[],
+      research_used: liveDataUsed,
+    });
+    if (error) throw new Error(error.message);
+
+    return report;
   });
 
-const ideasInput = z.object({
-  profile: businessProfileSchema,
-  marketAnalysis: z.string().optional().default(""),
-});
-
 export const generateMarketingIdeas = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => ideasInput.parse(input))
-  .handler(async ({ data }): Promise<IdeasReport> => {
+  .middleware([requireSupabaseAuth])
+  .inputValidator(businessInput)
+  .handler(async ({ data, context }): Promise<IdeasReport> => {
     const { runResearch, parseJsonObject } = await import("./ai-gateway.server");
+    const profile = await loadOwnedBusiness(context.supabase, data.businessId);
+    const analysis = await loadLatestAnalysis(context.supabase, data.businessId);
+    const analysisContext = analysis
+      ? JSON.stringify({
+          marketOverview: analysis.content.marketOverview,
+          trends: analysis.content.trends,
+          customerInsights: analysis.content.customerInsights,
+        }).slice(0, 5000)
+      : "";
 
     const prompt = `Create ready-to-use marketing ideas for this business: social content, promotions and trends that are running online RIGHT NOW.
 
 BUSINESS PROFILE
-${profileBlock(data.profile)}
+${profileBlock(profile)}
 
-${data.marketAnalysis ? `EXISTING MARKET ANALYSIS (from this app)\n${data.marketAnalysis.slice(0, 5000)}` : "No market analysis has been generated yet."}
+${analysisContext ? `EXISTING MARKET ANALYSIS (from this app)\n${analysisContext}` : "No market analysis has been generated yet."}
 
 Research what is currently trending online (social platforms, viral formats, seasonal moments, local Israeli trends), and what similar businesses are posting and offering right now.
 
@@ -174,7 +254,7 @@ Return 6-9 ideas as JSON with exactly this shape:
     const { text, liveDataUsed } = await runResearch(SHARED_RULES, prompt);
     const parsed = parseJsonObject<Omit<IdeasReport, "liveDataUsed" | "generatedAt">>(text);
 
-    return {
+    const report: IdeasReport = {
       ideas: (parsed.ideas ?? []).map((idea) => ({
         ...idea,
         hashtags: idea.hashtags ?? [],
@@ -190,4 +270,15 @@ Return 6-9 ideas as JSON with exactly this shape:
       liveDataUsed,
       generatedAt: new Date().toISOString(),
     };
+
+    const { error } = await context.supabase.from("marketing_ideas_reports").insert({
+      business_id: data.businessId,
+      market_analysis_id: analysis?.id ?? null,
+      content: report as unknown as Record<string, unknown>,
+      sources: report.ideas.flatMap((i) => i.sources) as unknown as Record<string, unknown>[],
+      research_used: liveDataUsed,
+    });
+    if (error) throw new Error(error.message);
+
+    return report;
   });
