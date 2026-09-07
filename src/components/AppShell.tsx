@@ -2,11 +2,12 @@ import { Link } from "@tanstack/react-router";
 import { Building2, LineChart, Sparkles, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-const NAV: { to: string; label: string; icon: LucideIcon }[] = [
-  { to: "/", label: "פרופיל העסק", icon: Building2 },
-  { to: "/market-analysis", label: "ניתוח שוק", icon: LineChart },
-  { to: "/opportunities", label: "הזדמנויות", icon: Sparkles },
+const NAV: { to: string; label: string; icon: LucideIcon; step: string }[] = [
+  { to: "/", label: "פרופיל העסק", icon: Building2, step: "1" },
+  { to: "/market-analysis", label: "ניתוח שוק", icon: LineChart, step: "2" },
+  { to: "/opportunities", label: "הזדמנויות", icon: Sparkles, step: "3" },
 ];
+
 
 export function AppShell({
   title,
