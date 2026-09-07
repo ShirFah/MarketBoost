@@ -12,9 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedBusinessRouteImport } from './routes/_authenticated/business'
 import { Route as AuthenticatedMarketAnalysisRouteImport } from './routes/_authenticated/market-analysis'
 import { Route as AuthenticatedMarketingIdeasRouteImport } from './routes/_authenticated/marketing-ideas'
 import { Route as AuthenticatedOpportunitiesRouteImport } from './routes/_authenticated/opportunities'
+import { Route as AuthenticatedPlanRouteImport } from './routes/_authenticated/plan'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -28,6 +30,11 @@ const AuthRoute = AuthRouteImport.update({
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBusinessRoute = AuthenticatedBusinessRouteImport.update({
+  id: '/business',
+  path: '/business',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMarketAnalysisRoute =
@@ -48,43 +55,69 @@ const AuthenticatedOpportunitiesRoute =
     path: '/opportunities',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPlanRoute = AuthenticatedPlanRouteImport.update({
+  id: '/plan',
+  path: '/plan',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
+  '/business': typeof AuthenticatedBusinessRoute
   '/market-analysis': typeof AuthenticatedMarketAnalysisRoute
   '/marketing-ideas': typeof AuthenticatedMarketingIdeasRoute
   '/opportunities': typeof AuthenticatedOpportunitiesRoute
+  '/plan': typeof AuthenticatedPlanRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
+  '/business': typeof AuthenticatedBusinessRoute
   '/market-analysis': typeof AuthenticatedMarketAnalysisRoute
   '/marketing-ideas': typeof AuthenticatedMarketingIdeasRoute
   '/opportunities': typeof AuthenticatedOpportunitiesRoute
+  '/plan': typeof AuthenticatedPlanRoute
   '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/business': typeof AuthenticatedBusinessRoute
   '/_authenticated/market-analysis': typeof AuthenticatedMarketAnalysisRoute
   '/_authenticated/marketing-ideas': typeof AuthenticatedMarketingIdeasRoute
   '/_authenticated/opportunities': typeof AuthenticatedOpportunitiesRoute
+  '/_authenticated/plan': typeof AuthenticatedPlanRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/market-analysis' | '/marketing-ideas' | '/opportunities'
+    | '/'
+    | '/auth'
+    | '/business'
+    | '/market-analysis'
+    | '/marketing-ideas'
+    | '/opportunities'
+    | '/plan'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/market-analysis' | '/marketing-ideas' | '/opportunities' | '/'
+  to:
+    | '/auth'
+    | '/business'
+    | '/market-analysis'
+    | '/marketing-ideas'
+    | '/opportunities'
+    | '/plan'
+    | '/'
   id:
     | '__root__'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/business'
     | '/_authenticated/market-analysis'
     | '/_authenticated/marketing-ideas'
     | '/_authenticated/opportunities'
+    | '/_authenticated/plan'
     | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
@@ -116,6 +149,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/business': {
+      id: '/_authenticated/business'
+      path: '/business'
+      fullPath: '/business'
+      preLoaderRoute: typeof AuthenticatedBusinessRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/market-analysis': {
       id: '/_authenticated/market-analysis'
       path: '/market-analysis'
@@ -137,20 +177,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOpportunitiesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/plan': {
+      id: '/_authenticated/plan'
+      path: '/plan'
+      fullPath: '/plan'
+      preLoaderRoute: typeof AuthenticatedPlanRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedBusinessRoute: typeof AuthenticatedBusinessRoute
   AuthenticatedMarketAnalysisRoute: typeof AuthenticatedMarketAnalysisRoute
   AuthenticatedMarketingIdeasRoute: typeof AuthenticatedMarketingIdeasRoute
   AuthenticatedOpportunitiesRoute: typeof AuthenticatedOpportunitiesRoute
+  AuthenticatedPlanRoute: typeof AuthenticatedPlanRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedBusinessRoute: AuthenticatedBusinessRoute,
   AuthenticatedMarketAnalysisRoute: AuthenticatedMarketAnalysisRoute,
   AuthenticatedMarketingIdeasRoute: AuthenticatedMarketingIdeasRoute,
   AuthenticatedOpportunitiesRoute: AuthenticatedOpportunitiesRoute,
+  AuthenticatedPlanRoute: AuthenticatedPlanRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
 

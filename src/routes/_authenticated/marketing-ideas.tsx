@@ -39,6 +39,10 @@ export const Route = createFileRoute("/_authenticated/marketing-ideas")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+  validateSearch: (search: Record<string, unknown>): { focus?: string } =>
+    typeof search['focus'] === "string" && search['focus'].trim()
+      ? { focus: search['focus'].slice(0, 300) }
+      : {},
   component: MarketingIdeasPage,
 });
 
@@ -50,6 +54,7 @@ const PRIORITY_LABEL = {
 } as const;
 
 function MarketingIdeasPage() {
+  const { focus } = Route.useSearch();
   const { profile, isComplete } = useBusinessProfile();
   const { ideas: report, saveIdeas, businessId } = useMarketingIdeas();
   const run = useServerFn(generateMarketingIdeas);
@@ -89,7 +94,7 @@ function MarketingIdeasPage() {
               השלימו את פרופיל העסק ונכתוב עבורכם תוכן ומבצעים שמתאימים בדיוק לכם.
             </p>
             <Button asChild className="mt-5 rounded-xl">
-              <Link to="/">מעבר לפרופיל העסק</Link>
+              <Link to="/business">מעבר לפרופיל העסק</Link>
             </Button>
           </CardContent>
         </Card>
@@ -99,10 +104,24 @@ function MarketingIdeasPage() {
 
   return (
     <AppShell
-      eyebrow="שלב 4 · מה מפרסמים"
+      eyebrow="מה מפרסמים"
       title="רעיונות שיווק"
       subtitle={`תוכן מוכן לפרסום, מבצעים וטרנדים עדכניים עבור ${profile.businessName}.`}
     >
+      {focus ? (
+        <Card className="glass-card mb-6 border-none">
+          <CardContent className="py-5 text-sm">
+            <p className="text-muted-foreground text-xs font-semibold tracking-wide">
+              הפעולה שבחרתם בעמוד הבית
+            </p>
+            <p className="mt-1.5 leading-relaxed">{focus}</p>
+            <p className="text-muted-foreground mt-2 text-xs">
+              הפיקו רעיונות חדשים וקחו מהם את התוכן שמתאים לפעולה הזו.
+            </p>
+          </CardContent>
+        </Card>
+      ) : null}
+
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <Button onClick={generate} disabled={loading} size="lg" className="rounded-xl">
           {loading ? (
