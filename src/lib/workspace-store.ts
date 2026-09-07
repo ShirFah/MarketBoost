@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import {
   emptyProfile,
   type BusinessProfile,
@@ -6,73 +8,128 @@ import {
   type IdeasReport,
   type OpportunityReport,
 } from "./marketing-types";
+import { getLatestReports, getMyBusiness, saveMyBusiness } from "./workspace.functions";
 
-const KEYS = {
-  profile: "mb.profile",
-  analysis: "mb.marketAnalysis",
-  opportunities: "mb.opportunities",
-  ideas: "mb.ideas",
-} as const;
+/**
+ * The database is the source of truth. These legacy localStorage keys are only
+ * read once, to pre-fill the form for people who used the app before accounts
+ * existed; nothing is written back to them.
+ */
+const LEGACY_PROFILE_KEY = "mb.profile";
 
-function read<T>(key: string, fallback: T): T {
-  if (typeof window === "undefined") return fallback;
+function readLegacyProfile(): BusinessProfile | null {
+  if (typeof window === "undefined") return null;
   try {
-    const raw = window.localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
+    const raw = window.localStorage.getItem(LEGACY_PROFILE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<BusinessProfile>;
+    return { ...emptyProfile, ...parsed };
   } catch {
-    return fallback;
+    return null;
   }
 }
 
-function useStored<T>(key: string, fallback: T) {
-  const [value, setValue] = useState<T>(fallback);
-  const [ready, setReady] = useState(false);
+const businessKey = ["business"] as const;
+const reportsKey = (businessId: string | null) => ["reports", businessId] as const;
 
-  useEffect(() => {
-    setValue(read<T>(key, fallback));
-    setReady(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
-
-  const save = useCallback(
-    (next: T) => {
-      setValue(next);
-      try {
-        window.localStorage.setItem(key, JSON.stringify(next));
-      } catch (e) {
-        console.error("Could not save to local storage", e);
-      }
-    },
-    [key],
-  );
-
-  return { value, save, ready };
+export function useBusinessQuery() {
+  const fetchBusiness = useServerFn(getMyBusiness);
+  return useQuery({
+    queryKey: businessKey,
+    queryFn: () => fetchBusiness(),
+    staleTime: 30_000,
+  });
 }
 
 export function useBusinessProfile() {
-  const { value, save, ready } = useStored<BusinessProfile>(KEYS.profile, emptyProfile);
+  const queryClient = useQueryClient();
+  const { data, isPending } = useBusinessQuery();
+  const persist = useServerFn(saveMyBusiness);
+
+  const stored = data?.profile ?? null;
+  const profile = stored ?? readLegacyProfile() ?? emptyProfile;
+
+  const saveProfile = useCallback(
+    async (next: BusinessProfile) => {
+      const record = await persist({ data: { profile: next } });
+      queryClient.setQueryData(businessKey, record);
+      await queryClient.invalidateQueries({ queryKey: ["reports"] });
+      return record;
+    },
+    [persist, queryClient],
+  );
+
   return {
-    profile: value,
-    saveProfile: save,
-    ready,
-    isComplete: Boolean(value.businessName && value.industry && value.description),
+    businessId: data?.id ?? null,
+    profile,
+    saveProfile,
+    ready: !isPending,
+    isComplete: Boolean(stored?.businessName && stored.industry && stored.description),
   };
 }
 
+function useReports() {
+  const { data: business } = useBusinessQuery();
+  const businessId = business?.id ?? null;
+  const fetchReports = useServerFn(getLatestReports);
+
+  const query = useQuery({
+    queryKey: reportsKey(businessId),
+    enabled: Boolean(businessId),
+    queryFn: () => fetchReports({ data: { businessId: businessId as string } }),
+    staleTime: 30_000,
+  });
+
+  return { businessId, ...query };
+}
+
 export function useMarketAnalysis() {
-  const { value, save, ready } = useStored<MarketAnalysis | null>(KEYS.analysis, null);
-  return { analysis: value, saveAnalysis: save, ready };
+  const queryClient = useQueryClient();
+  const { businessId, data, isPending } = useReports();
+
+  const saveAnalysis = useCallback(
+    (next: MarketAnalysis) => {
+      queryClient.setQueryData(reportsKey(businessId), (prev: unknown) => ({
+        ...(prev as object),
+        analysis: next,
+      }));
+    },
+    [queryClient, businessId],
+  );
+
+  return { businessId, analysis: data?.analysis ?? null, saveAnalysis, ready: !isPending };
 }
 
 export function useOpportunities() {
-  const { value, save, ready } = useStored<OpportunityReport | null>(
-    KEYS.opportunities,
-    null,
+  const queryClient = useQueryClient();
+  const { businessId, data, isPending } = useReports();
+
+  const saveReport = useCallback(
+    (next: OpportunityReport) => {
+      queryClient.setQueryData(reportsKey(businessId), (prev: unknown) => ({
+        ...(prev as object),
+        opportunities: next,
+      }));
+    },
+    [queryClient, businessId],
   );
-  return { report: value, saveReport: save, ready };
+
+  return { businessId, report: data?.opportunities ?? null, saveReport, ready: !isPending };
 }
 
 export function useMarketingIdeas() {
-  const { value, save, ready } = useStored<IdeasReport | null>(KEYS.ideas, null);
-  return { ideas: value, saveIdeas: save, ready };
+  const queryClient = useQueryClient();
+  const { businessId, data, isPending } = useReports();
+
+  const saveIdeas = useCallback(
+    (next: IdeasReport) => {
+      queryClient.setQueryData(reportsKey(businessId), (prev: unknown) => ({
+        ...(prev as object),
+        ideas: next,
+      }));
+    },
+    [queryClient, businessId],
+  );
+
+  return { businessId, ideas: data?.ideas ?? null, saveIdeas, ready: !isPending };
 }
