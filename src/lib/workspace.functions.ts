@@ -1,6 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { businessProfileSchema, type BusinessProfile } from "./marketing-types";
+import {
+  businessProfileSchema,
+  type BusinessProfile,
+  type IdeasReport,
+  type MarketAnalysis,
+  type OpportunityReport,
+} from "./marketing-types";
 
 export type BusinessRecord = { id: string; profile: BusinessProfile };
 
