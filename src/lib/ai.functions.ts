@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import {
   businessProfileSchema,
+  type IdeasReport,
   type MarketAnalysis,
   type OpportunityReport,
 } from "./marketing-types";
