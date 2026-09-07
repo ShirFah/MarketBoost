@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { generateOpportunities } from "@/lib/ai.functions";
-import { useBusinessProfile, useMarketAnalysis, useOpportunities } from "@/lib/workspace-store";
+import { useBusinessProfile, useOpportunities } from "@/lib/workspace-store";
 
 export const Route = createFileRoute("/_authenticated/opportunities")({
   head: () => ({
@@ -45,8 +45,7 @@ const PRIORITY_LABEL = {
 
 function OpportunitiesPage() {
   const { profile, isComplete } = useBusinessProfile();
-  const { analysis } = useMarketAnalysis();
-  const { report, saveReport } = useOpportunities();
+  const { report, saveReport, businessId } = useOpportunities();
   const run = useServerFn(generateOpportunities);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,20 +54,7 @@ function OpportunitiesPage() {
     setLoading(true);
     setError(null);
     try {
-      const result = await run({
-        data: {
-          profile,
-          marketAnalysis: analysis
-            ? JSON.stringify({
-                marketOverview: analysis.marketOverview,
-                competitors: analysis.competitors,
-                trends: analysis.trends,
-                customerInsights: analysis.customerInsights,
-                risks: analysis.risks,
-              })
-            : "",
-        },
-      });
+      const result = await run({ data: { businessId: businessId as string } });
       saveReport(result);
     } catch (e) {
       setError(e instanceof Error ? e.message : "משהו השתבש בחיפוש ההזדמנויות. נסו שוב.");

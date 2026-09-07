@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { generateMarketingIdeas } from "@/lib/ai.functions";
-import { useBusinessProfile, useMarketAnalysis, useMarketingIdeas } from "@/lib/workspace-store";
+import { useBusinessProfile, useMarketingIdeas } from "@/lib/workspace-store";
 
 export const Route = createFileRoute("/_authenticated/marketing-ideas")({
   head: () => ({
@@ -51,8 +51,7 @@ const PRIORITY_LABEL = {
 
 function MarketingIdeasPage() {
   const { profile, isComplete } = useBusinessProfile();
-  const { analysis } = useMarketAnalysis();
-  const { ideas: report, saveIdeas } = useMarketingIdeas();
+  const { ideas: report, saveIdeas, businessId } = useMarketingIdeas();
   const run = useServerFn(generateMarketingIdeas);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,18 +61,7 @@ function MarketingIdeasPage() {
     setLoading(true);
     setError(null);
     try {
-      const result = await run({
-        data: {
-          profile,
-          marketAnalysis: analysis
-            ? JSON.stringify({
-                marketOverview: analysis.marketOverview,
-                trends: analysis.trends,
-                customerInsights: analysis.customerInsights,
-              })
-            : "",
-        },
-      });
+      const result = await run({ data: { businessId: businessId as string } });
       saveIdeas(result);
     } catch (e) {
       setError(e instanceof Error ? e.message : "משהו השתבש ביצירת הרעיונות. נסו שוב.");

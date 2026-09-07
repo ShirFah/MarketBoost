@@ -57,7 +57,7 @@ function Section({ title, items }: { title: string; items: string[] }) {
 
 function MarketAnalysisPage() {
   const { profile, isComplete } = useBusinessProfile();
-  const { analysis, saveAnalysis } = useMarketAnalysis();
+  const { analysis, saveAnalysis, businessId } = useMarketAnalysis();
   const run = useServerFn(generateMarketAnalysis);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +66,7 @@ function MarketAnalysisPage() {
     setLoading(true);
     setError(null);
     try {
-      const result = await run({ data: { profile } });
+      const result = await run({ data: { businessId: businessId as string } });
       saveAnalysis(result);
     } catch (e) {
       setError(e instanceof Error ? e.message : "משהו השתבש בהפקת הניתוח. נסו שוב.");
