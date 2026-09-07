@@ -141,9 +141,9 @@ export const getLatestReports = createServerFn({ method: "POST" })
     ]);
 
     return {
-      analysis: (analysis?.content ?? null) as unknown,
+      analysis: (analysis?.content ?? null) as MarketAnalysis | null,
       analysisId: (analysis?.id ?? null) as string | null,
-      opportunities: (opportunities?.content ?? null) as unknown,
-      ideas: (ideas?.content ?? null) as unknown,
+      opportunities: (opportunities?.content ?? null) as OpportunityReport | null,
+      ideas: (ideas?.content ?? null) as IdeasReport | null,
     };
   });
