@@ -66,7 +66,7 @@ function MarketingIdeasPage() {
     setLoading(true);
     setError(null);
     try {
-      const result = await run({ data: { businessId: businessId as string } });
+      const result = await run({ data: { businessId: businessId as string, focus } });
       saveIdeas(result);
     } catch (e) {
       setError(e instanceof Error ? e.message : "משהו השתבש ביצירת הרעיונות. נסו שוב.");
