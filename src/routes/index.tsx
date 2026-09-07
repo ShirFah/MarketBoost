@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
+
 
 import { Textarea } from "@/components/ui/textarea";
 import { businessProfileSchema, type BusinessProfile } from "@/lib/marketing-types";
@@ -107,7 +107,12 @@ function ProfilePage() {
               </span>
               <span>{percent}%</span>
             </div>
-            <Progress value={percent} className="h-1.5" />
+            <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
+              <div
+                className="h-full rounded-full transition-all"
+                style={{ width: `${percent}%`, backgroundImage: "var(--gradient-primary)" }}
+              />
+            </div>
           </div>
         </CardHeader>
         <CardContent className="grid gap-5 md:grid-cols-2">
