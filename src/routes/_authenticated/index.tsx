@@ -4,7 +4,6 @@ import {
   ArrowLeft,
   CalendarDays,
   Lightbulb,
-  LineChart,
   Sparkles,
   Target,
   Wand2,
@@ -418,9 +417,7 @@ function EmptyCard({ text, to, cta }: { text: string; to: string; cta: string })
       <CardContent className="py-8 text-center">
         <p className="text-muted-foreground mx-auto max-w-lg text-sm leading-relaxed">{text}</p>
         <Button asChild className="mt-5 rounded-xl">
-          <Link to={to}>
-            <LineChart className="size-4" /> {cta}
-          </Link>
+          <Link to={to}>{cta}</Link>
         </Button>
       </CardContent>
     </Card>
