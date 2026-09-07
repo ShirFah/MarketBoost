@@ -68,3 +68,25 @@ export type OpportunityReport = {
   liveDataUsed: boolean;
   generatedAt: string;
 };
+
+export type MarketingIdea = {
+  title: string;
+  channel: string;
+  format: string;
+  content: string;
+  hashtags?: string[];
+  callToAction: string;
+  whyNow: string;
+  priority: "High" | "Medium" | "Low";
+  sources: Source[];
+};
+
+export type IdeasReport = {
+  ideas: MarketingIdea[];
+  trendingNow: { trend: string; howToUse: string }[];
+  promotions: { title: string; details: string; whyItWorks: string }[];
+  webFindings: string[];
+  aiInterpretation: string[];
+  liveDataUsed: boolean;
+  generatedAt: string;
+};
