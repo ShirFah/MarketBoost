@@ -37,9 +37,10 @@ function useStored<T>(key: string, fallback: T) {
       setValue(next);
       try {
         window.localStorage.setItem(key, JSON.stringify(next));
-      } catch {
-        /* storage unavailable */
+      } catch (e) {
+        console.error("Could not save to local storage", e);
       }
+
     },
     [key],
   );
