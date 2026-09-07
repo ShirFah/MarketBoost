@@ -35,6 +35,7 @@ function useStored<T>(key: string, fallback: T) {
   const save = useCallback(
     (next: T) => {
       setValue(next);
+      console.log("SAVE", key, JSON.stringify(next).length);
       try {
         window.localStorage.setItem(key, JSON.stringify(next));
       } catch (e) {
