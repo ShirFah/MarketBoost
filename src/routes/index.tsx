@@ -61,9 +61,13 @@ function ProfilePage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const value = draft ?? profile;
+  const required = FIELDS.filter((f) => !f.optional);
+  const filled = required.filter((f) => (value[f.key] ?? "").trim().length > 0).length;
+  const percent = Math.round((filled / required.length) * 100);
 
   const update = (key: keyof BusinessProfile, next: string) => {
     setDraft({ ...value, [key]: next });
+    if (errors[key]) setErrors((prev) => ({ ...prev, [key]: "" }));
   };
 
   const onSave = () => {
@@ -75,12 +79,13 @@ function ProfilePage() {
       }
       setErrors(next);
       toast.error("נא למלא את השדות המסומנים.");
+      document.getElementById(Object.keys(next)[0] ?? "")?.focus();
       return;
     }
     setErrors({});
     saveProfile(result.data);
     setDraft(null);
-    toast.success("פרופיל העסק נשמר.");
+    toast.success("פרופיל העסק נשמר. אפשר להמשיך לניתוח השוק.");
   };
 
   return (
@@ -93,6 +98,15 @@ function ProfilePage() {
         <CardHeader>
           <CardTitle className="font-display text-xl font-bold">על העסק שלכם</CardTitle>
           <CardDescription>כל השדות חובה, חוץ מאלה שמסומנים כרשות.</CardDescription>
+          <div className="mt-4">
+            <div className="text-muted-foreground mb-2 flex items-center justify-between text-xs">
+              <span>
+                מולאו {filled} מתוך {required.length}
+              </span>
+              <span>{percent}%</span>
+            </div>
+            <Progress value={percent} className="h-1.5" />
+          </div>
         </CardHeader>
         <CardContent className="grid gap-5 md:grid-cols-2">
           {FIELDS.map((field) => (
@@ -131,14 +145,15 @@ function ProfilePage() {
         </CardContent>
       </Card>
 
-      <div className="mt-6 flex flex-wrap items-center gap-3">
+      <div className="glass-card sticky bottom-4 z-10 mt-6 flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3">
         <Button onClick={onSave} disabled={!ready} size="lg" className="rounded-xl">
           שמירת הפרופיל
         </Button>
-        {draft ? (
-          <span className="text-muted-foreground text-xs">יש לכם שינויים שלא נשמרו.</span>
-        ) : null}
+        <span className="text-muted-foreground text-xs">
+          {draft ? "יש לכם שינויים שלא נשמרו." : isComplete ? "הפרופיל שמור ומוכן." : "אפשר להשלים בהדרגה — נשמור לכם את מה שכבר מולא."}
+        </span>
       </div>
+
 
       {isComplete ? (
         <div className="mt-12 grid gap-4 md:grid-cols-2">
