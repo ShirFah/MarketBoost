@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedMarketAnalysisRouteImport } from './routes/_authenticated/market-analysis'
 import { Route as AuthenticatedMarketingIdeasRouteImport } from './routes/_authenticated/marketing-ideas'
 import { Route as AuthenticatedOpportunitiesRouteImport } from './routes/_authenticated/opportunities'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/_authenticated/',
   path: '/',
@@ -39,12 +45,14 @@ const AuthenticatedOpportunitiesRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/auth': typeof AuthRoute
   '/market-analysis': typeof AuthenticatedMarketAnalysisRoute
   '/marketing-ideas': typeof AuthenticatedMarketingIdeasRoute
   '/opportunities': typeof AuthenticatedOpportunitiesRoute
   '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesByTo {
+  '/auth': typeof AuthRoute
   '/market-analysis': typeof AuthenticatedMarketAnalysisRoute
   '/marketing-ideas': typeof AuthenticatedMarketingIdeasRoute
   '/opportunities': typeof AuthenticatedOpportunitiesRoute
@@ -52,6 +60,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/auth': typeof AuthRoute
   '/_authenticated/market-analysis': typeof AuthenticatedMarketAnalysisRoute
   '/_authenticated/marketing-ideas': typeof AuthenticatedMarketingIdeasRoute
   '/_authenticated/opportunities': typeof AuthenticatedOpportunitiesRoute
@@ -59,11 +68,13 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/market-analysis' | '/marketing-ideas' | '/opportunities' | '/'
+  fullPaths:
+    '/auth' | '/market-analysis' | '/marketing-ideas' | '/opportunities' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/market-analysis' | '/marketing-ideas' | '/opportunities' | '/'
+  to: '/auth' | '/market-analysis' | '/marketing-ideas' | '/opportunities' | '/'
   id:
     | '__root__'
+    | '/auth'
     | '/_authenticated/market-analysis'
     | '/_authenticated/marketing-ideas'
     | '/_authenticated/opportunities'
@@ -71,6 +82,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  AuthRoute: typeof AuthRoute
   AuthenticatedMarketAnalysisRoute: typeof AuthenticatedMarketAnalysisRoute
   AuthenticatedMarketingIdeasRoute: typeof AuthenticatedMarketingIdeasRoute
   AuthenticatedOpportunitiesRoute: typeof AuthenticatedOpportunitiesRoute
@@ -79,6 +91,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/': {
       id: '/_authenticated/'
       path: '/'
@@ -111,6 +130,7 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  AuthRoute: AuthRoute,
   AuthenticatedMarketAnalysisRoute: AuthenticatedMarketAnalysisRoute,
   AuthenticatedMarketingIdeasRoute: AuthenticatedMarketingIdeasRoute,
   AuthenticatedOpportunitiesRoute: AuthenticatedOpportunitiesRoute,
