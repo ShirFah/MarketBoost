@@ -12,14 +12,18 @@ export function SourceList({ sources, compact }: { sources: Source[]; compact?: 
             href={source.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-start gap-1.5 font-medium text-primary underline-offset-4 hover:underline"
+            dir="ltr"
+            className="text-primary inline-flex items-start gap-1.5 text-start font-medium underline-offset-4 hover:underline"
           >
             {source.title || source.url}
             <ExternalLink className="mt-0.5 size-3.5 shrink-0" />
           </a>
-          <p className="text-xs text-muted-foreground">
-            {[source.name, source.date].filter(Boolean).join(" · ")}
+          <p className="text-muted-foreground text-xs">
+            <span dir="ltr" className="inline-block">
+              {[source.name, source.date].filter(Boolean).join(" · ")}
+            </span>
           </p>
+
         </li>
       ))}
     </ul>

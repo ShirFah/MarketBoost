@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
+import { ArrowLeft, LineChart, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,17 +14,17 @@ import { useBusinessProfile } from "@/lib/workspace-store";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Market Boost — AI Marketing Manager for Small Businesses" },
+      { title: "פרופיל העסק — Market Boost" },
       {
         name: "description",
         content:
-          "Market Boost researches your market live and turns it into clear marketing analysis and opportunities for your small business.",
+          "מלאו את פרופיל העסק שלכם, וקבלו ניתוח שוק והזדמנויות שיווק שמבוססים על מחקר אינטרנט עדכני.",
       },
-      { property: "og:title", content: "Market Boost — AI Marketing Manager" },
+      { property: "og:title", content: "פרופיל העסק — Market Boost" },
       {
         property: "og:description",
         content:
-          "Save your business profile, then generate market analysis and marketing opportunities backed by current web research.",
+          "שמרו את פרופיל העסק ואז הפיקו ניתוח שוק והזדמנויות שיווק מבוססי מידע עדכני מהרשת.",
       },
     ],
   }),
@@ -37,21 +38,21 @@ const FIELDS: {
   long?: boolean;
   optional?: boolean;
 }[] = [
-  { key: "businessName", label: "Business name" },
-  { key: "website", label: "Website", optional: true, hint: "e.g. yourshop.com" },
-  { key: "industry", label: "Industry", hint: "e.g. specialty coffee, dog grooming" },
-  { key: "description", label: "What your business does", long: true },
-  { key: "productsServices", label: "Products or services", long: true },
-  { key: "targetAudience", label: "Who your customers are", long: true },
-  { key: "location", label: "Location or target market" },
-  { key: "marketingGoals", label: "Main marketing goals", long: true },
+  { key: "businessName", label: "שם העסק" },
+  { key: "website", label: "אתר אינטרנט", optional: true, hint: "לדוגמה: myshop.co.il" },
+  { key: "industry", label: "תחום העסק", hint: "לדוגמה: בית קפה, טיפוח כלבים" },
+  { key: "description", label: "מה העסק שלכם עושה", long: true },
+  { key: "productsServices", label: "מוצרים או שירותים", long: true },
+  { key: "targetAudience", label: "מי הלקוחות שלכם", long: true },
+  { key: "location", label: "מיקום או שוק היעד", hint: "לדוגמה: תל אביב" },
+  { key: "marketingGoals", label: "מטרות השיווק המרכזיות", long: true },
   {
     key: "currentChannels",
-    label: "Marketing you do today",
+    label: "השיווק שאתם עושים היום",
     optional: true,
-    hint: "e.g. Instagram, word of mouth",
+    hint: "לדוגמה: אינסטגרם, מפה לאוזן",
   },
-  { key: "competitors", label: "Competitors you know of", optional: true },
+  { key: "competitors", label: "מתחרים שאתם מכירים", optional: true },
 ];
 
 function ProfilePage() {
@@ -73,24 +74,25 @@ function ProfilePage() {
         next[String(issue.path[0])] = issue.message;
       }
       setErrors(next);
-      toast.error("Please fill in the highlighted fields.");
+      toast.error("נא למלא את השדות המסומנים.");
       return;
     }
     setErrors({});
     saveProfile(result.data);
     setDraft(null);
-    toast.success("Business profile saved.");
+    toast.success("פרופיל העסק נשמר.");
   };
 
   return (
     <AppShell
-      title="Business Profile"
-      subtitle="The more detail you give here, the sharper your market analysis and opportunities will be."
+      eyebrow="שלב 1 · הבסיס לכל ניתוח"
+      title="פרופיל העסק"
+      subtitle="כמה שיותר פרטים כאן, כך ניתוח השוק וההזדמנויות שתקבלו יהיו מדויקים יותר לעסק שלכם."
     >
-      <Card>
+      <Card className="glass-card border-none">
         <CardHeader>
-          <CardTitle className="font-display text-xl">About your business</CardTitle>
-          <CardDescription>Everything except the marked fields is required.</CardDescription>
+          <CardTitle className="font-display text-xl font-bold">על העסק שלכם</CardTitle>
+          <CardDescription>כל השדות חובה, חוץ מאלה שמסומנים כרשות.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-5 md:grid-cols-2">
           {FIELDS.map((field) => (
@@ -98,9 +100,7 @@ function ProfilePage() {
               <Label htmlFor={field.key}>
                 {field.label}
                 {field.optional ? (
-                  <span className="ml-1 text-xs font-normal text-muted-foreground">
-                    (optional)
-                  </span>
+                  <span className="text-muted-foreground ms-1 text-xs font-normal">(רשות)</span>
                 ) : null}
               </Label>
               <div className="mt-2">
@@ -124,7 +124,7 @@ function ProfilePage() {
                 )}
               </div>
               {errors[field.key] ? (
-                <p className="mt-1 text-xs text-destructive">{errors[field.key]}</p>
+                <p className="text-destructive mt-1 text-xs">{errors[field.key]}</p>
               ) : null}
             </div>
           ))}
@@ -132,44 +132,72 @@ function ProfilePage() {
       </Card>
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
-        <Button onClick={onSave} disabled={!ready}>
-          Save profile
+        <Button onClick={onSave} disabled={!ready} size="lg" className="rounded-xl">
+          שמירת הפרופיל
         </Button>
         {draft ? (
-          <span className="text-xs text-muted-foreground">You have unsaved changes.</span>
+          <span className="text-muted-foreground text-xs">יש לכם שינויים שלא נשמרו.</span>
         ) : null}
       </div>
 
       {isComplete ? (
-        <div className="mt-10 grid gap-4 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-display text-lg">Market Analysis</CardTitle>
-              <CardDescription>
-                Current competitors, trends and customer insights, researched on the web.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild variant="secondary">
-                <Link to="/market-analysis">Open Market Analysis</Link>
-              </Button>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-display text-lg">Opportunities</CardTitle>
-              <CardDescription>
-                Prioritised, timely moves for your business with the evidence behind them.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild variant="secondary">
-                <Link to="/opportunities">Open Opportunities</Link>
-              </Button>
-            </CardContent>
-          </Card>
+        <div className="mt-12 grid gap-4 md:grid-cols-2">
+          <ToolCard
+            to="/market-analysis"
+            icon={<LineChart className="size-5" />}
+            title="ניתוח שוק"
+            description="מתחרים, מגמות ותובנות על הלקוחות שלכם — מתוך מקורות עדכניים ברשת."
+            cta="פתיחת ניתוח השוק"
+          />
+          <ToolCard
+            to="/opportunities"
+            icon={<Sparkles className="size-5" />}
+            title="הזדמנויות"
+            description="מהלכים ממוקדים לפי סדר עדיפויות, עם האות מהשוק שמאחורי כל אחד."
+            cta="פתיחת ההזדמנויות"
+          />
         </div>
       ) : null}
     </AppShell>
+  );
+}
+
+function ToolCard({
+  to,
+  icon,
+  title,
+  description,
+  cta,
+}: {
+  to: string;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  cta: string;
+}) {
+  return (
+    <Link to={to} className="group block">
+      <Card className="glass-card hover:shadow-lift h-full border-none transition-all group-hover:-translate-y-1">
+        <CardHeader>
+          <span
+            className="mb-2 grid size-11 place-items-center rounded-2xl"
+            style={{
+              backgroundImage: "var(--gradient-primary)",
+              color: "var(--primary-foreground)",
+            }}
+          >
+            {icon}
+          </span>
+          <CardTitle className="font-display text-lg font-bold">{title}</CardTitle>
+          <CardDescription className="leading-relaxed">{description}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <span className="text-primary inline-flex items-center gap-1.5 text-sm font-semibold">
+            {cta}
+            <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-1" />
+          </span>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
