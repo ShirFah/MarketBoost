@@ -102,7 +102,7 @@ Return between 5 and 8 opportunities as JSON with exactly this shape:
 {
   "opportunities": [{
     "title": "",
-    "category": "Emerging trend | Competitor gap | Underserved need | Content | New channel | Seasonal | Offer or positioning",
+    "category": "one Hebrew label out of: מגמה מתפתחת | פער אצל המתחרים | צורך שלא נענה | תוכן | ערוץ חדש | עונתי | הצעה או מיצוב",
     "whyItMatters": "",
     "evidence": "the market signal found through research",
     "recommendedAction": "concrete next step this owner can take",
