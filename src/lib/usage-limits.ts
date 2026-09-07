@@ -31,9 +31,9 @@ export class UsageLimitError extends Error {
   }
 }
 
-type Rpc = {
-  rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: any; error: any }>;
-};
+// Structurally loose on purpose: the generated Supabase client types the rpc
+// name as a literal union, and this helper is shared by every generator.
+type Rpc = { rpc: any };
 
 type Claim = {
   allowed: boolean;
