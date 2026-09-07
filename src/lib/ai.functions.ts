@@ -8,6 +8,7 @@ import {
 } from "./marketing-types";
 import type { Json } from "@/integrations/supabase/types";
 import { rowToProfile } from "./workspace.functions";
+import { claimGeneration, finishGeneration, type AiFeature } from "./usage-limits";
 
 const businessInput = (input: unknown) => {
   const id = (input as { businessId?: unknown }).businessId;
@@ -107,7 +108,19 @@ Return JSON with exactly this shape:
   "sources": [{"name": "", "title": "", "url": "", "date": ""}]
 }`;
 
-    const { text, liveDataUsed } = await runResearch(SHARED_RULES, prompt);
+    // Quota is claimed only after the request proves valid and owned, and
+    // before the provider is contacted.
+    const usageId = await claimGeneration(context.supabase, "market_analysis", data.businessId);
+    let text: string;
+    let liveDataUsed: boolean;
+    try {
+      const outcome = await runResearch(SHARED_RULES, prompt);
+      text = outcome.text;
+      liveDataUsed = outcome.liveDataUsed;
+    } catch (aiError) {
+      await finishGeneration(context.supabase, usageId, false, { stage: "provider" });
+      throw aiError;
+    }
     const parsed = parseJsonObject<Omit<MarketAnalysis, "liveDataUsed" | "generatedAt">>(text);
 
     const report: MarketAnalysis = {
@@ -133,6 +146,8 @@ Return JSON with exactly this shape:
       research_used: liveDataUsed,
     });
     if (error) throw new Error(error.message);
+
+    await finishGeneration(context.supabase, usageId, true, { liveDataUsed });
 
     return report;
   });
@@ -179,7 +194,17 @@ Return between 5 and 8 opportunities as JSON with exactly this shape:
   "aiInterpretation": ["your own reasoning and recommendations"]
 }`;
 
-    const { text, liveDataUsed } = await runResearch(SHARED_RULES, prompt);
+    const usageId = await claimGeneration(context.supabase, "opportunities", data.businessId);
+    let text: string;
+    let liveDataUsed: boolean;
+    try {
+      const outcome = await runResearch(SHARED_RULES, prompt);
+      text = outcome.text;
+      liveDataUsed = outcome.liveDataUsed;
+    } catch (aiError) {
+      await finishGeneration(context.supabase, usageId, false, { stage: "provider" });
+      throw aiError;
+    }
     const parsed = parseJsonObject<Omit<OpportunityReport, "liveDataUsed" | "generatedAt">>(text);
 
     const report: OpportunityReport = {
@@ -202,6 +227,8 @@ Return between 5 and 8 opportunities as JSON with exactly this shape:
       research_used: liveDataUsed,
     });
     if (error) throw new Error(error.message);
+
+    await finishGeneration(context.supabase, usageId, true, { liveDataUsed });
 
     return report;
   });
@@ -249,7 +276,17 @@ Return 6-9 ideas as JSON with exactly this shape:
   "aiInterpretation": ["your own reasoning and recommendations"]
 }`;
 
-    const { text, liveDataUsed } = await runResearch(SHARED_RULES, prompt);
+    const usageId = await claimGeneration(context.supabase, "marketing_ideas", data.businessId);
+    let text: string;
+    let liveDataUsed: boolean;
+    try {
+      const outcome = await runResearch(SHARED_RULES, prompt);
+      text = outcome.text;
+      liveDataUsed = outcome.liveDataUsed;
+    } catch (aiError) {
+      await finishGeneration(context.supabase, usageId, false, { stage: "provider" });
+      throw aiError;
+    }
     const parsed = parseJsonObject<Omit<IdeasReport, "liveDataUsed" | "generatedAt">>(text);
 
     const report: IdeasReport = {
@@ -277,6 +314,8 @@ Return 6-9 ideas as JSON with exactly this shape:
       research_used: liveDataUsed,
     });
     if (error) throw new Error(error.message);
+
+    await finishGeneration(context.supabase, usageId, true, { liveDataUsed });
 
     return report;
   });
