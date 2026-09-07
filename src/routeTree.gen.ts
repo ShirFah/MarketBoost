@@ -9,47 +9,52 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedMarketAnalysisRouteImport } from './routes/_authenticated/market-analysis'
 import { Route as AuthenticatedMarketingIdeasRouteImport } from './routes/_authenticated/marketing-ideas'
 import { Route as AuthenticatedOpportunitiesRouteImport } from './routes/_authenticated/opportunities'
 
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
-  id: '/_authenticated/',
+  id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMarketAnalysisRoute =
   AuthenticatedMarketAnalysisRouteImport.update({
-    id: '/_authenticated/market-analysis',
+    id: '/market-analysis',
     path: '/market-analysis',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedMarketingIdeasRoute =
   AuthenticatedMarketingIdeasRouteImport.update({
-    id: '/_authenticated/marketing-ideas',
+    id: '/marketing-ideas',
     path: '/marketing-ideas',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedOpportunitiesRoute =
   AuthenticatedOpportunitiesRouteImport.update({
-    id: '/_authenticated/opportunities',
+    id: '/opportunities',
     path: '/opportunities',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
   '/market-analysis': typeof AuthenticatedMarketAnalysisRoute
   '/marketing-ideas': typeof AuthenticatedMarketingIdeasRoute
   '/opportunities': typeof AuthenticatedOpportunitiesRoute
-  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
@@ -60,6 +65,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/market-analysis': typeof AuthenticatedMarketAnalysisRoute
   '/_authenticated/marketing-ideas': typeof AuthenticatedMarketingIdeasRoute
@@ -69,11 +75,12 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/auth' | '/market-analysis' | '/marketing-ideas' | '/opportunities' | '/'
+    '/' | '/auth' | '/market-analysis' | '/marketing-ideas' | '/opportunities'
   fileRoutesByTo: FileRoutesByTo
   to: '/auth' | '/market-analysis' | '/marketing-ideas' | '/opportunities' | '/'
   id:
     | '__root__'
+    | '/_authenticated'
     | '/auth'
     | '/_authenticated/market-analysis'
     | '/_authenticated/marketing-ideas'
@@ -82,15 +89,19 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
-  AuthenticatedMarketAnalysisRoute: typeof AuthenticatedMarketAnalysisRoute
-  AuthenticatedMarketingIdeasRoute: typeof AuthenticatedMarketingIdeasRoute
-  AuthenticatedOpportunitiesRoute: typeof AuthenticatedOpportunitiesRoute
-  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -103,38 +114,52 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/market-analysis': {
       id: '/_authenticated/market-analysis'
       path: '/market-analysis'
       fullPath: '/market-analysis'
       preLoaderRoute: typeof AuthenticatedMarketAnalysisRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/marketing-ideas': {
       id: '/_authenticated/marketing-ideas'
       path: '/marketing-ideas'
       fullPath: '/marketing-ideas'
       preLoaderRoute: typeof AuthenticatedMarketingIdeasRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/opportunities': {
       id: '/_authenticated/opportunities'
       path: '/opportunities'
       fullPath: '/opportunities'
       preLoaderRoute: typeof AuthenticatedOpportunitiesRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
-const rootRouteChildren: RootRouteChildren = {
-  AuthRoute: AuthRoute,
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedMarketAnalysisRoute: typeof AuthenticatedMarketAnalysisRoute
+  AuthenticatedMarketingIdeasRoute: typeof AuthenticatedMarketingIdeasRoute
+  AuthenticatedOpportunitiesRoute: typeof AuthenticatedOpportunitiesRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMarketAnalysisRoute: AuthenticatedMarketAnalysisRoute,
   AuthenticatedMarketingIdeasRoute: AuthenticatedMarketingIdeasRoute,
   AuthenticatedOpportunitiesRoute: AuthenticatedOpportunitiesRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+const rootRouteChildren: RootRouteChildren = {
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
