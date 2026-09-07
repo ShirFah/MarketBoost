@@ -1,6 +1,9 @@
-import { Link } from "@tanstack/react-router";
-import { Building2, Lightbulb, LineChart, Sparkles, type LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { Building2, Lightbulb, LineChart, LogOut, Sparkles, type LucideIcon } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 const NAV: { to: string; label: string; icon: LucideIcon; step: string }[] = [
   { to: "/", label: "פרופיל העסק", icon: Building2, step: "1" },
@@ -9,6 +12,52 @@ const NAV: { to: string; label: string; icon: LucideIcon; step: string }[] = [
   { to: "/marketing-ideas", label: "רעיונות שיווק", icon: Lightbulb, step: "4" },
 ];
 
+
+function AccountArea() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [email, setEmail] = useState<string | null>(null);
+  const [name, setName] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void supabase.auth.getUser().then(({ data }) => {
+      if (!active) return;
+      setEmail(data.user?.email ?? null);
+      const meta = data.user?.user_metadata as { full_name?: string } | undefined;
+      setName(meta?.full_name ?? null);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const signOut = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  };
+
+  if (!email) return null;
+
+  return (
+    <div className="border-sidebar-border/70 mt-6 hidden rounded-2xl border p-3 md:mt-10 md:block">
+      <p className="truncate text-sm font-semibold">{name || "החשבון שלי"}</p>
+      <p className="text-sidebar-foreground/55 truncate text-[11px]" dir="ltr">
+        {email}
+      </p>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="mt-2 h-8 w-full justify-start rounded-lg px-2 text-xs"
+        onClick={signOut}
+      >
+        <LogOut className="size-3.5" /> יציאה מהחשבון
+      </Button>
+    </div>
+  );
+}
 
 export function AppShell({
   title,
@@ -66,6 +115,8 @@ export function AppShell({
           ))}
         </nav>
 
+
+        <AccountArea />
 
         <p className="text-sidebar-foreground/45 mt-8 hidden text-[11px] leading-relaxed md:block">
           כל ניתוח נבנה מהפרופיל שלך יחד עם מחקר אינטרנט עדכני, עם קישור למקורות.

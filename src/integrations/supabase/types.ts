@@ -14,13 +14,209 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      businesses: {
+        Row: {
+          created_at: string
+          current_channels: string
+          description: string
+          id: string
+          industry: string
+          known_competitors: string
+          location: string
+          marketing_goals: string
+          name: string
+          products_services: string
+          target_audience: string
+          updated_at: string
+          user_id: string
+          website: string
+        }
+        Insert: {
+          created_at?: string
+          current_channels?: string
+          description?: string
+          id?: string
+          industry?: string
+          known_competitors?: string
+          location?: string
+          marketing_goals?: string
+          name?: string
+          products_services?: string
+          target_audience?: string
+          updated_at?: string
+          user_id: string
+          website?: string
+        }
+        Update: {
+          created_at?: string
+          current_channels?: string
+          description?: string
+          id?: string
+          industry?: string
+          known_competitors?: string
+          location?: string
+          marketing_goals?: string
+          name?: string
+          products_services?: string
+          target_audience?: string
+          updated_at?: string
+          user_id?: string
+          website?: string
+        }
+        Relationships: []
+      }
+      market_analyses: {
+        Row: {
+          business_id: string
+          content: Json
+          created_at: string
+          id: string
+          research_used: boolean
+          sources: Json
+        }
+        Insert: {
+          business_id: string
+          content: Json
+          created_at?: string
+          id?: string
+          research_used?: boolean
+          sources?: Json
+        }
+        Update: {
+          business_id?: string
+          content?: Json
+          created_at?: string
+          id?: string
+          research_used?: boolean
+          sources?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_analyses_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketing_ideas_reports: {
+        Row: {
+          business_id: string
+          content: Json
+          created_at: string
+          id: string
+          market_analysis_id: string | null
+          research_used: boolean
+          sources: Json
+        }
+        Insert: {
+          business_id: string
+          content: Json
+          created_at?: string
+          id?: string
+          market_analysis_id?: string | null
+          research_used?: boolean
+          sources?: Json
+        }
+        Update: {
+          business_id?: string
+          content?: Json
+          created_at?: string
+          id?: string
+          market_analysis_id?: string | null
+          research_used?: boolean
+          sources?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_ideas_reports_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketing_ideas_reports_market_analysis_id_fkey"
+            columns: ["market_analysis_id"]
+            isOneToOne: false
+            referencedRelation: "market_analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opportunities_reports: {
+        Row: {
+          business_id: string
+          content: Json
+          created_at: string
+          id: string
+          market_analysis_id: string | null
+          research_used: boolean
+          sources: Json
+        }
+        Insert: {
+          business_id: string
+          content: Json
+          created_at?: string
+          id?: string
+          market_analysis_id?: string | null
+          research_used?: boolean
+          sources?: Json
+        }
+        Update: {
+          business_id?: string
+          content?: Json
+          created_at?: string
+          id?: string
+          market_analysis_id?: string | null
+          research_used?: boolean
+          sources?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunities_reports_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunities_reports_market_analysis_id_fkey"
+            columns: ["market_analysis_id"]
+            isOneToOne: false
+            referencedRelation: "market_analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      owns_business: { Args: { _business_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

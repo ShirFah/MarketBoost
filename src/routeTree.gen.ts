@@ -9,109 +9,157 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as MarketAnalysisRouteImport } from './routes/market-analysis'
-import { Route as MarketingIdeasRouteImport } from './routes/marketing-ideas'
-import { Route as OpportunitiesRouteImport } from './routes/opportunities'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedMarketAnalysisRouteImport } from './routes/_authenticated/market-analysis'
+import { Route as AuthenticatedMarketingIdeasRouteImport } from './routes/_authenticated/marketing-ideas'
+import { Route as AuthenticatedOpportunitiesRouteImport } from './routes/_authenticated/opportunities'
 
-const IndexRoute = IndexRouteImport.update({
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const MarketAnalysisRoute = MarketAnalysisRouteImport.update({
-  id: '/market-analysis',
-  path: '/market-analysis',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketingIdeasRoute = MarketingIdeasRouteImport.update({
-  id: '/marketing-ideas',
-  path: '/marketing-ideas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OpportunitiesRoute = OpportunitiesRouteImport.update({
-  id: '/opportunities',
-  path: '/opportunities',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const AuthenticatedMarketAnalysisRoute =
+  AuthenticatedMarketAnalysisRouteImport.update({
+    id: '/market-analysis',
+    path: '/market-analysis',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMarketingIdeasRoute =
+  AuthenticatedMarketingIdeasRouteImport.update({
+    id: '/marketing-ideas',
+    path: '/marketing-ideas',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedOpportunitiesRoute =
+  AuthenticatedOpportunitiesRouteImport.update({
+    id: '/opportunities',
+    path: '/opportunities',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/market-analysis': typeof MarketAnalysisRoute
-  '/marketing-ideas': typeof MarketingIdeasRoute
-  '/opportunities': typeof OpportunitiesRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/auth': typeof AuthRoute
+  '/market-analysis': typeof AuthenticatedMarketAnalysisRoute
+  '/marketing-ideas': typeof AuthenticatedMarketingIdeasRoute
+  '/opportunities': typeof AuthenticatedOpportunitiesRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/market-analysis': typeof MarketAnalysisRoute
-  '/marketing-ideas': typeof MarketingIdeasRoute
-  '/opportunities': typeof OpportunitiesRoute
+  '/auth': typeof AuthRoute
+  '/market-analysis': typeof AuthenticatedMarketAnalysisRoute
+  '/marketing-ideas': typeof AuthenticatedMarketingIdeasRoute
+  '/opportunities': typeof AuthenticatedOpportunitiesRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/market-analysis': typeof MarketAnalysisRoute
-  '/marketing-ideas': typeof MarketingIdeasRoute
-  '/opportunities': typeof OpportunitiesRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/market-analysis': typeof AuthenticatedMarketAnalysisRoute
+  '/_authenticated/marketing-ideas': typeof AuthenticatedMarketingIdeasRoute
+  '/_authenticated/opportunities': typeof AuthenticatedOpportunitiesRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/market-analysis' | '/marketing-ideas' | '/opportunities'
+  fullPaths:
+    '/' | '/auth' | '/market-analysis' | '/marketing-ideas' | '/opportunities'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/market-analysis' | '/marketing-ideas' | '/opportunities'
+  to: '/auth' | '/market-analysis' | '/marketing-ideas' | '/opportunities' | '/'
   id:
     | '__root__'
-    | '/'
-    | '/market-analysis'
-    | '/marketing-ideas'
-    | '/opportunities'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/market-analysis'
+    | '/_authenticated/marketing-ideas'
+    | '/_authenticated/opportunities'
+    | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  MarketAnalysisRoute: typeof MarketAnalysisRoute
-  MarketingIdeasRoute: typeof MarketingIdeasRoute
-  OpportunitiesRoute: typeof OpportunitiesRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/market-analysis': {
-      id: '/market-analysis'
+    '/_authenticated/market-analysis': {
+      id: '/_authenticated/market-analysis'
       path: '/market-analysis'
       fullPath: '/market-analysis'
-      preLoaderRoute: typeof MarketAnalysisRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedMarketAnalysisRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/marketing-ideas': {
-      id: '/marketing-ideas'
+    '/_authenticated/marketing-ideas': {
+      id: '/_authenticated/marketing-ideas'
       path: '/marketing-ideas'
       fullPath: '/marketing-ideas'
-      preLoaderRoute: typeof MarketingIdeasRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedMarketingIdeasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/opportunities': {
-      id: '/opportunities'
+    '/_authenticated/opportunities': {
+      id: '/_authenticated/opportunities'
       path: '/opportunities'
       fullPath: '/opportunities'
-      preLoaderRoute: typeof OpportunitiesRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedOpportunitiesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedMarketAnalysisRoute: typeof AuthenticatedMarketAnalysisRoute
+  AuthenticatedMarketingIdeasRoute: typeof AuthenticatedMarketingIdeasRoute
+  AuthenticatedOpportunitiesRoute: typeof AuthenticatedOpportunitiesRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedMarketAnalysisRoute: AuthenticatedMarketAnalysisRoute,
+  AuthenticatedMarketingIdeasRoute: AuthenticatedMarketingIdeasRoute,
+  AuthenticatedOpportunitiesRoute: AuthenticatedOpportunitiesRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  MarketAnalysisRoute: MarketAnalysisRoute,
-  MarketingIdeasRoute: MarketingIdeasRoute,
-  OpportunitiesRoute: OpportunitiesRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
